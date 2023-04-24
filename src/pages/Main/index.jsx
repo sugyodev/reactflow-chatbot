@@ -81,12 +81,32 @@ const Main = () => {
         case 'Options':
           nodedata['option_header'] = '';
           nodedata['option_footer'] = '';
+          nodedata['option_content'] = '';
           nodedata['data'] = [];
           break;
         case 'Quick Answers':
           nodedata['qu_header'] = '';
           nodedata['qu_footer'] = '';
+          nodedata['qu_content'] = '';
           nodedata['qu_data'] = [];
+          break;
+        case 'Answer with Text':
+          nodedata['answer_content'] = '';
+          break;
+        case 'Upload Media':
+          nodedata['media_type'] = '';
+          nodedata['media_content'] = null;
+          break;
+        case 'Talk with advisor':
+          nodedata['advisor_name'] = 'Vladyslav Anisimov';
+          break;
+        case 'Web Service':
+          nodedata['api_url'] = 'https://example...';
+          nodedata['api_method'] = 'GET';
+          nodedata['api_headers'] = [];
+          nodedata['api_params'] = [];
+          nodedata['api_res_variable'] = null;
+          nodedata['api_res_data'] = null;
           break;
         default:
           break;

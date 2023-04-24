@@ -12,19 +12,23 @@ const toolbarConfig = {
   ],
 }
 
-
 function SettingBar({ setShowSettingBar, selectedNodeData }) {
   const { data, id } = selectedNodeData;
   const { setNodes, label, nodedata } = data;
-
   //Messaages
   const [messageContent, setMessageContent] = useState(RichTextEditor.createEmptyValue());
 
   //Questions and answers
   const [qaQuestion, setQaQuestion] = useState(RichTextEditor.createEmptyValue());
   const [qaAnswer, setQaAnswer] = useState(RichTextEditor.createEmptyValue());
-
+  const [variables, setVariables] = useState([
+    { key: 'Company', value: 'ChatBot' },
+    { key: 'Name', value: 'Vlady' },
+    { key: 'Url', value: 'https://react-flow.com' },
+    { key: 'Phone', value: '123145432452364' },
+  ]);
   //Options List
+  const [optionContent, setOptionContent] = useState(RichTextEditor.createEmptyValue());
   const [optionsHeader, setOptionsHeader] = useState('');
   const [optionsFooter, setOptionsFooter] = useState('');
   const [optionsData, setOptionsData] = useState([]);
@@ -32,137 +36,54 @@ function SettingBar({ setShowSettingBar, selectedNodeData }) {
   //Quick Answers
   const [quAnswerHeader, setQuAnswerHeader] = useState('');
   const [quAnswerFooter, setQuAnswerFooter] = useState('');
+  const [quContent, setQuContent] = useState(RichTextEditor.createEmptyValue());
   const [quData, setQuData] = useState([]);
 
+  //Answer with text
+  const [answerContent, setAnswerContent] = useState(RichTextEditor.createEmptyValue());
+
+  //Upload Media
+  const [media, setMedia] = useState({ data: null, type: '' });
+
+  //Web service
+  const [isSaveResAsVal, setIsSaveResAsVal] = useState(true);
+  const [apiUrl, setApiUrl] = useState('');
+  const [apiMethod, setApiMethod] = useState('');
+  const [apiParams, setApiParams] = useState([{ key: '', value: '' }]);
+  const [apiHeaders, setApiHeaders] = useState([{ key: '', value: '' }]);
+  const [resApiVariable, setResApiVariable] = useState(variables[0]?.key);
+
   useEffect(() => {
-    setMessageContent(RichTextEditor.createValueFromString(nodedata?.content, 'html'));
-
     setQaQuestion(RichTextEditor.createValueFromString(nodedata?.qa_q, 'html'));
-    nodedata?.qa_a && setQaAnswer(nodedata?.qa_a);
+    setMessageContent(RichTextEditor.createValueFromString(nodedata?.content, 'html'));
+    setOptionContent(RichTextEditor.createValueFromString(nodedata?.option_content, 'html'));
+    setAnswerContent(RichTextEditor.createValueFromString(nodedata?.answer_content, 'html'));
+    setQuContent(RichTextEditor.createValueFromString(nodedata?.qu_content, 'html'));
 
+    nodedata?.qa_a && setQaAnswer(nodedata?.qa_a);
+    nodedata?.qu_data && setQuData([...nodedata?.qu_data]);
+    nodedata?.data && setOptionsData([...nodedata?.data]);
     nodedata?.option_header && setOptionsHeader(nodedata?.option_header);
     nodedata?.option_footer && setOptionsFooter(nodedata?.option_footer);
-    nodedata?.data && setOptionsData(nodedata?.data);
-
-    nodedata?.qu_data && setQuData(nodedata?.qu_data);
     nodedata?.qu_header && setQuAnswerHeader(nodedata?.qu_header);
     nodedata?.qu_footer && setQuAnswerFooter(nodedata?.qu_footer);
+    nodedata?.media_content && setMedia({ ...media, data: nodedata?.media_content, type: nodedata?.media_type })
+
+    nodedata?.api_url && setApiUrl(nodedata?.api_url);
+    nodedata?.api_method && setApiMethod(nodedata?.api_method);
+    nodedata?.api_params && setApiParams([...nodedata?.api_params]);
+    nodedata?.api_headers && setApiHeaders([...nodedata?.api_headers]);
+    nodedata?.api_res_variable && setResApiVariable(nodedata?.api_res_variable);
+
   }, [id]);
 
-  /**
-   * Save Message
-   */
-  const saveMessage = () => {
-    setNodes(nds =>
-      nds.map((node) => {
-        if (node.id === id) {
-          node.data = {
-            ...node.data,
-            nodedata: {
-              ...node.data.nodedata,
-              content: messageContent.toString('html')
-            }
-          }
-        }
-        return node;
-      })
-    );
-  };
-
-  /**
-   * Cancel Message
-   */
-  const cancelMessage = () => {
-    setMessageContent(RichTextEditor.createEmptyValue());
-    setShowSettingBar(false);
-  };
-  ///////////////////////////////////////////////////////////////////
-  /**
-   * Save Questions and Answers
-   */
-  const saveQA = () => {
-    setNodes(nds =>
-      nds.map((node) => {
-        if (node.id === id) {
-          node.data = {
-            ...node.data,
-            nodedata: {
-              ...node.data.nodedata,
-              qa_q: qaQuestion.toString('html'),
-              qa_a: qaAnswer
-            }
-          }
-        }
-        return node;
-      })
-    );
-  };
-
-  /**
-   * Cancel Questions and Answers
-   */
-  const cancelQA = () => {
-    setQaQuestion(RichTextEditor.createEmptyValue());
-    setQaAnswer(RichTextEditor.createEmptyValue());
-    setShowSettingBar(false);
-  };
-
-  /////////////////////////////////////////////////////////////////////
-  /**
-   * Add new section
-   */
-  const addNewSection = () => {
-    const isAvailable = checkAddisAvailable('section');
-    if (!isAvailable) {
-      toast.warn('You can\'t add new section anymore.');
-      return;
+  const variableChangeHandler = (e, type, id) => {
+    if (type === 'key') {
+      variables[id].key = e.target.value
+    } else {
+      variables[id].value = e.target.value
     }
-    let newSection = { name: `Section`, data: [`option`], selectedOption: -1 };
-    optionsData.push(newSection);
-    setOptionsData([...optionsData]);
-  };
-
-  /**
-   * Delete section
-   */
-  const deleteSection = (no) => {
-    optionsData.splice(no, 1);
-    setOptionsData([...optionsData]);
-  };
-
-  /**
-   * Section name edit handler
-   */
-  const sectionNameChange = (e, no) => {
-    optionsData[no].name = e.target.value;
-    setOptionsData([...optionsData]);
-  };
-
-  /**
-   * Add new option
-   */
-  const addNewOption = (no) => {
-    const isAvailable = checkAddisAvailable('option');
-    if (!isAvailable) {
-      toast.warn('You can\'t add new option anymore.');
-      return;
-    }
-    optionsData[no].data.push(`option`);
-    setOptionsData([...optionsData]);
-  };
-
-  /**
-   * Delete option
-   */
-  const deleteOption = (no, o_no) => {
-    optionsData[no].data.splice(o_no, 1);
-    setOptionsData([...optionsData]);
-  };
-
-  /**Option edit handler */
-  const optionChange = (e, no, o_no) => {
-    optionsData[no].data[o_no] = e.target.value;
-    setOptionsData([...optionsData]);
+    setVariables([...variables])
   };
 
   /**
@@ -180,95 +101,186 @@ function SettingBar({ setShowSettingBar, selectedNodeData }) {
     }
   };
 
-  /**
-   * Save options
-   */
-  const saveOptionsList = () => {
-    setNodes(nds =>
-      nds.map((node) => {
-        if (node.id === id) {
-          node.data = {
-            ...node.data,
-            nodedata: {
-              ...node.data.nodedata,
-              option_header: optionsHeader,
-              option_footer: optionsFooter,
-              data: optionsData
-            }
-          }
-        }
-        return node;
-      })
-    );
-  };
-
-  /**
-   * Cancel options 
-   */
-  const cancelOptionsList = () => {
-    setOptionsData([]);
-    setShowSettingBar(false);
-  };
-
-  ////////////////////////////////////////////////////////////
-  /**
-   *  Add new Quick Answer Button
-   * @returns 
-   */
-  const addNewQuButton = () => {
-    if (quData.length >= 3) {
-      toast.warn('You can\'t add new button anymore.');
-      return;
+  const mediaUploadHandler = (e) => {
+    let file = e.target.files[0];
+    if (file.type.includes('video') || file.type.includes("audio")) {
+      setMedia({ ...media, type: file.type.includes('video') ? "video" : "audio", data: file })
+    } else {
+      setMedia({ ...media, type: "image", data: file })
     }
-    let newButton = { name: `Button`, data: {} };
-    quData.push(newButton);
-    setQuData([...quData]);
   };
 
-  /**
-   * Delete Quick Answer button
-   */
-  const deleteQuButton = (no) => {
-    quData.splice(no, 1);
-    setQuData([...quData]);
-  };
-
-  /**
-   * Save Quick Answer Data
-   */
-  const saveQudata = () => {
-    setNodes(nds =>
-      nds.map((node) => {
-        if (node.id === id) {
-          node.data = {
-            ...node.data,
-            nodedata: {
-              ...node.data.nodedata,
-              qu_header: quAnswerHeader,
-              qu_footer: quAnswerFooter,
-              qu_data: quData
+  const save = (type) => {
+    switch (type) {
+      case 'message':
+        setNodes(nds =>
+          nds.map((node) => {
+            if (node.id === id) {
+              node.data = {
+                ...node.data,
+                nodedata: {
+                  ...node.data.nodedata,
+                  content: messageContent.toString('html')
+                }
+              }
             }
-          }
-        }
-        return node;
-      })
-    );
+            return node;
+          })
+        );
+        toast.success('Saved successfully!');
+        break;
+      case 'question-answer':
+        setNodes(nds =>
+          nds.map((node) => {
+            if (node.id === id) {
+              node.data = {
+                ...node.data,
+                nodedata: {
+                  ...node.data.nodedata,
+                  qa_q: qaQuestion.toString('html'),
+                  qa_a: qaAnswer,
+                }
+              }
+            }
+            return node;
+          })
+        );
+        toast.success('Saved successfully!');
+        break;
+      case 'options':
+        setNodes(nds =>
+          nds.map((node) => {
+            if (node.id === id) {
+              node.data = {
+                ...node.data,
+                nodedata: {
+                  ...node.data.nodedata,
+                  option_header: optionsHeader,
+                  option_content: optionContent.toString('html'),
+                  option_footer: optionsFooter,
+                  data: optionsData
+                }
+              }
+            }
+            return node;
+          })
+        );
+        toast.success('Saved successfully!');
+        break;
+      case 'quick-answer':
+        setNodes(nds =>
+          nds.map((node) => {
+            if (node.id === id) {
+              node.data = {
+                ...node.data,
+                nodedata: {
+                  ...node.data.nodedata,
+                  qu_header: quAnswerHeader,
+                  qu_footer: quAnswerFooter,
+                  qu_data: quData,
+                  qu_content: quContent.toString('html'),
+                }
+              }
+            }
+            return node;
+          })
+        );
+        toast.success('Saved successfully!');
+        break;
+      case 'answer-text':
+        setNodes(nds =>
+          nds.map((node) => {
+            if (node.id === id) {
+              node.data = {
+                ...node.data,
+                nodedata: {
+                  ...node.data.nodedata,
+                  answer_content: answerContent.toString('html'),
+                }
+              }
+            }
+            return node;
+          })
+        );
+        break;
+      case 'media':
+        setNodes(nds =>
+          nds.map((node) => {
+            if (node.id === id) {
+              node.data = {
+                ...node.data,
+                nodedata: {
+                  ...node.data.nodedata,
+                  media_content: media.data,
+                  media_type: media.type,
+                }
+              }
+            }
+            return node;
+          })
+        );
+        toast.success('Saved successfully!');
+        break;
+      case 'web':
+        setNodes(nds =>
+          nds.map((node) => {
+            if (node.id === id) {
+              node.data = {
+                ...node.data,
+                nodedata: {
+                  ...node.data.nodedata,
+                  api_url: apiUrl,
+                  api_method: apiMethod,
+                  api_headers: apiHeaders,
+                  api_params: apiParams,
+                  api_res_variable: resApiVariable,
+                  api_res_data: null,
+                }
+              }
+            }
+            return node;
+          })
+        );
+        toast.success('Saved successfully!');
+        break;
+      default:
+        break;
+    }
   };
 
-  /**
-   * Cancel Quick Answer Data
-   */
-  const cancelQudata = () => {
-    setQuData([]);
-    setShowSettingBar(false);
-  };
-
-  /**
-   * Quick Answer button name edit handler
-   */
-  const quButonNameChange = (e, no) => {
-    quData[no].name = e.target.value;
-    setQuData([...quData]);
+  const cancel = (type) => {
+    switch (type) {
+      case 'message':
+        setMessageContent(RichTextEditor.createEmptyValue());
+        setShowSettingBar(false);
+        break;
+      case 'question-answer':
+        setQaQuestion(RichTextEditor.createEmptyValue());
+        setQaAnswer(RichTextEditor.createEmptyValue());
+        setShowSettingBar(false);
+        break;
+      case 'options':
+        setOptionsData([]);
+        setShowSettingBar(false);
+        break;
+      case 'quick-answer':
+        setQuData([]);
+        setShowSettingBar(false);
+        break;
+      case 'answer-text':
+        setShowSettingBar(false);
+        setAnswerContent(RichTextEditor.createEmptyValue());
+        break;
+      case 'media':
+        setShowSettingBar(false);
+        setMedia({ data: null, type: '' })
+        break;
+      case 'advisor':
+        setShowSettingBar(false);
+        break;
+      default:
+        break;
+    }
   };
 
   return (
@@ -285,7 +297,7 @@ function SettingBar({ setShowSettingBar, selectedNodeData }) {
 
       <aside id="sidebar-multi-level-sidebar" className="fixed top-[76px] left-0 z-40 w-64 h-screen transition-transform 
       -translate-x-full sm:translate-x-0 border-r border-gray-200" aria-label="Sidebar">
-        <div className="h-full py-4 overflow-y-auto -mt-2">
+        <div className="h-full py-4 overflow-y-auto">
           <div className='flex justify-between border-b pb-4 pt-2'>
             <div className='w-full px-4 text-lg font-[500] flex'>
               {label === 'Message' && <img src="imgs/message-icon.png" className='h-6 mr-2' alt="A" width={24} />}
@@ -312,9 +324,9 @@ function SettingBar({ setShowSettingBar, selectedNodeData }) {
                 />
                 <div className='flex mt-2 justify-end'>
                   <button className='mx-1 bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-1 
-                  px-4 text-sm border border-blue-500 hover:border-transparent rounded' onClick={saveMessage}>Save</button>
+                  px-4 text-sm border border-blue-500 hover:border-transparent rounded' onClick={() => save('message')}>Save</button>
                   <button className='mx-1 bg-transparent hover:bg-red-500 text-red-700 font-semibold hover:text-white py-1 
-                  px-4 text-sm border border-red-500 hover:border-transparent rounded mr-2' onClick={cancelMessage}>Cancel</button>
+                  px-4 text-sm border border-red-500 hover:border-transparent rounded mr-2' onClick={() => cancel('message')}>Cancel</button>
                 </div>
               </>
             }
@@ -331,24 +343,57 @@ function SettingBar({ setShowSettingBar, selectedNodeData }) {
                   className="font-[400] custom-rich-editor"
                 />
 
-                <p className='pl-2 pt-2 text-sm'>Save answers in the variable</p>
+                <p className='pl-2 py-2 text-sm text-[#555]'>Save answers in the variable</p>
 
                 <div className='w-full px-2'>
                   <span className='absolute mt-2 ml-2 font-bold'>@</span>
-                  <select id="answer_vals" class="pl-6 bg-gray-50 border w-full border-gray-300 text-gray-600 text-sm rounded-lg 
+                  <select id="answer_vals" className="pl-6 bg-gray-50 border w-full border-gray-300 text-gray-600 text-sm rounded-lg 
                   outline-none focus:ring-blue-500 focus:border-blue-500 block p-2.5" onChange={(e) => setQaAnswer(e.target.value)}>
-                    <option value="name" selected={qaAnswer === 'name'}>Name</option>
-                    <option value="email" selected={qaAnswer === 'email'}>Email</option>
-                    <option value="company" selected={qaAnswer === 'company'}>Company</option>
-                    <option value="phone" selected={qaAnswer === 'phone'}>Phone</option>
+                    {
+                      variables.map((data, id) =>
+                        <option key={id} selected={qaAnswer === data.value} value={data.value}>
+                          {data.key}
+                        </option>
+                      )
+                    }
                   </select>
                 </div>
 
                 <div className='flex mt-2 justify-end'>
                   <button className='mx-1 bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-1 
-                  px-4 text-sm border border-blue-500 hover:border-transparent rounded' onClick={saveQA}>Save</button>
+                  px-4 text-sm border border-blue-500 hover:border-transparent rounded' onClick={() => save('question-answer')}>Save</button>
                   <button className='mx-1 bg-transparent hover:bg-red-500 text-red-700 font-semibold hover:text-white py-1 
-                  px-4 text-sm border border-red-500 hover:border-transparent rounded mr-2' onClick={cancelQA}>Cancel</button>
+                  px-4 text-sm border border-red-500 hover:border-transparent rounded mr-2' onClick={() => cancel('question-answer')}>Cancel</button>
+                </div>
+
+                <hr className='mt-2' />
+                <p className='pl-2 pt-2 text-sm text-[#555]'>Set Variables</p>
+                <div className='mt-2'>
+                  {
+                    variables.map((data, id) =>
+                      <li className='flex justify-between text-sm text-[#333] mt-1 mr-1'>
+                        <input value={data.key} className="text-left border p-1 w-20 ml-2 outline-none focus:border-gray-400 mr-1"
+                          onChange={(e) => variableChangeHandler(e, 'key', id)} />
+                        :
+                        <div className='flex'>
+                          <input value={data.value} className=" border p-1 w-32 outline-none focus:border-gray-400 ml-1"
+                            onChange={(e) => variableChangeHandler(e, 'value', id)} />
+                          <i className='fa fa-trash cursor-pointer hover:text-[#888] mt-2 ml-1' onClick={() => {
+                            variables.splice(id, 1);
+                            setVariables([...variables]);
+                          }}></i>
+                        </div>
+                      </li>
+                    )
+                  }
+                </div>
+                <div className='flex justify-end'>
+                  <button className='mx-1 bg-transparent hover:bg-gray-500 text-gray-700 font-semibold hover:text-white py-1 mt-2 float-right
+                  px-4 text-sm border border-gray-500 hover:border-transparent rounded' onClick={() => {
+                      let obj = { key: 'Key', value: 'value' };
+                      variables.push(obj);
+                      setVariables([...variables]);
+                    }}>Add new</button>
                 </div>
               </>
             }
@@ -357,6 +402,17 @@ function SettingBar({ setShowSettingBar, selectedNodeData }) {
               <>
                 <input value={optionsHeader} onChange={(e) => setOptionsHeader(e.target.value)} placeholder="click to edit footer"
                   className='bg-[#336699] text-white w-full text-sm p-1 py-2 outline-none font-semibold placeholder-slate-400' />
+                <RichTextEditor
+                  value={optionContent}
+                  placeholder='Edit here ...'
+                  onChange={(value) => { setOptionContent(value) }}
+                  toolbarConfig={toolbarConfig}
+                  className="font-[400] custom-rich-editor"
+                />
+                <input value={optionsFooter} onChange={(e) => setOptionsFooter(e.target.value)} placeholder="click to edit footer"
+                  className='bg-[#336699] text-white w-full text-sm p-1 py-2 outline-none font-semibold placeholder-slate-400' />
+
+                <p className='text-[#888] text-sm p-2'>Menu List</p>
                 <div className='px-2 pb-2'>
                   {
                     optionsData.map((section, no) => (
@@ -366,11 +422,25 @@ function SettingBar({ setShowSettingBar, selectedNodeData }) {
                         shadow-md shadow-cyan-500/50 font-medium rounded text-sm w-full px-2 py-2.5 mr-2'>
 
                           <input value={section.name} className='outline-none bg-transparent placeholder-gray-200'
-                            placeholder='click to edit section' onChange={(e) => sectionNameChange(e, no)} />
+                            placeholder='click to edit section' onChange={(e) => {
+                              optionsData[no].name = e.target.value;
+                              setOptionsData([...optionsData]);
+                            }} />
 
                           <div className='flex'>
-                            <i className='fa fa-plus mr-2 mt-1 cursor-pointer hover:text-[#ccc]' onClick={() => addNewOption(no)}></i>
-                            <i className='fa fa-trash mt-1 cursor-pointer hover:text-[#ccc]' onClick={() => deleteSection(no)}></i>
+                            <i className='fa fa-plus mr-2 mt-1 cursor-pointer hover:text-[#ccc]' onClick={() => {
+                              const isAvailable = checkAddisAvailable('option');
+                              if (!isAvailable) {
+                                toast.warn('You can\'t add new option anymore.');
+                                return;
+                              }
+                              optionsData[no].data.push(`option`);
+                              setOptionsData([...optionsData]);
+                            }}></i>
+                            <i className='fa fa-trash mt-1 cursor-pointer hover:text-[#ccc]' onClick={() => {
+                              optionsData.splice(no, 1);
+                              setOptionsData([...optionsData]);
+                            }}></i>
                           </div>
                         </div>
 
@@ -381,11 +451,17 @@ function SettingBar({ setShowSettingBar, selectedNodeData }) {
                             text-center mb-1' key={o_no} >
 
                               <input value={option} className='outline-none bg-transparent placeholder-gray-200'
-                                placeholder='click to edit option' onChange={(e) => optionChange(e, no, o_no)} />
+                                placeholder='click to edit option' onChange={(e) => {
+                                  optionsData[no].data[o_no] = e.target.value;
+                                  setOptionsData([...optionsData]);
+                                }} />
 
                               <div className='flex'>
                                 <i className='fa fa-trash mt-1 cursor-pointer hover:text-[#ccc]' style={{ fontSize: 12 }}
-                                  onClick={() => deleteOption(no, o_no)}></i>
+                                  onClick={() => {
+                                    optionsData[no].data.splice(o_no, 1);
+                                    setOptionsData([...optionsData]);
+                                  }}></i>
                               </div>
                             </div>
                           ))
@@ -394,59 +470,277 @@ function SettingBar({ setShowSettingBar, selectedNodeData }) {
                     ))
                   }
 
-                  <button onClick={addNewSection} className='w-full text-white bg-gradient-to-r from-purple-500 via-purple-600 
+                  <button onClick={() => {
+                    const isAvailable = checkAddisAvailable('section');
+                    if (!isAvailable) {
+                      toast.warn('You can\'t add new section anymore.');
+                      return;
+                    }
+                    let newSection = { name: `Section`, data: [`option`], selectedOption: -1 };
+                    optionsData.push(newSection);
+                    setOptionsData([...optionsData]);
+                  }} className='w-full text-white bg-gradient-to-r from-purple-500 via-purple-600 
                   to-purple-700 hover:bg-gradient-to-br focus:outline-none focus:ring-purple-300 font-medium rounded-full text-sm 
                   px-4 py-1.5 text-center mt-2'>
                     <i className='fa fa-plus mr-2' style={{ fontSize: 12 }}></i> Add new section
                   </button>
                 </div>
 
-                <input value={optionsFooter} onChange={(e) => setOptionsFooter(e.target.value)} placeholder="click to edit footer"
-                  className='bg-[#336699] text-white w-full text-sm p-1 py-2 outline-none font-semibold placeholder-slate-400' />
-
                 <div className='flex mt-2 justify-end'>
                   <button className='mx-1 bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-1 
-                  px-4 text-sm border border-blue-500 hover:border-transparent rounded' onClick={saveOptionsList}>Save</button>
+                  px-4 text-sm border border-blue-500 hover:border-transparent rounded' onClick={() => save('options')}>Save</button>
                   <button className='mx-1 bg-transparent hover:bg-red-500 text-red-700 font-semibold hover:text-white py-1 
-                  px-4 text-sm border border-red-500 hover:border-transparent rounded mr-2' onClick={cancelOptionsList}>Cancel</button>
+                  px-4 text-sm border border-red-500 hover:border-transparent rounded mr-2' onClick={() => cancel('options')}>Cancel</button>
                 </div>
               </>
             }
 
-            {label === 'Quick Answers' &&
+            {
+              label === 'Quick Answers' &&
               <>
                 <input value={quAnswerHeader} onChange={(e) => setQuAnswerHeader(e.target.value)} placeholder="click to edit footer"
+                  className='bg-[#336699] text-white w-full text-sm p-1 py-2 outline-none font-semibold placeholder-slate-400' />
+                <RichTextEditor
+                  value={quContent}
+                  placeholder='Edit here ...'
+                  onChange={(value) => { setQuContent(value) }}
+                  toolbarConfig={toolbarConfig}
+                  className="font-[400] custom-rich-editor"
+                />
+                <input value={quAnswerFooter} onChange={(e) => setQuAnswerFooter(e.target.value)} placeholder="click to edit footer"
                   className='bg-[#336699] text-white w-full text-sm p-1 py-2 outline-none font-semibold placeholder-slate-400' />
 
                 <div className='px-2 pb-2'>
                   {
                     quData.map((data, no) => (
-                      <div key={no} className='flex justify-between focus:outline-none text-white bg-yellow-400 hover:bg-yellow-500 
-                      font-medium rounded text-sm px-4 py-2 mr-2 mt-2'>
+                      <div key={no} className='flex justify-between text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 
+                      focus:ring-4 focus:ring-gray-200 rounded text-sm px-4 py-2 mr-2 mt-2'>
                         <input value={data.name} className='outline-none bg-transparent placeholder-gray-200'
-                          placeholder='click to edit' onChange={(e) => quButonNameChange(e, no)} />
-                        <i className='fa fa-trash mt-1 cursor-pointer hover:text-[#ccc]' onClick={() => deleteQuButton(no)}></i>
+                          placeholder='click to edit' onChange={(e) => {
+                            quData[no].name = e.target.value;
+                            setQuData([...quData]);
+                          }} />
+                        <i className='fa fa-trash mt-1 cursor-pointer hover:text-[#ccc]' onClick={() => {
+                          quData.splice(no, 1);
+                          setQuData([...quData]);
+                        }}></i>
                       </div>
                     ))
                   }
 
-                  <button onClick={addNewQuButton} className='w-full text-white bg-gradient-to-r from-purple-500 via-purple-600 
+                  <button onClick={() => {
+                    if (quData.length >= 3) {
+                      toast.warn('You can\'t add new button anymore.');
+                      return;
+                    }
+                    let newButton = { name: `Button`, data: {} };
+                    quData.push(newButton);
+                    setQuData([...quData]);
+                  }} className='w-full text-white bg-gradient-to-r from-purple-500 via-purple-600 
                   to-purple-700 hover:bg-gradient-to-br focus:outline-none focus:ring-purple-300 font-medium rounded-full 
                   text-sm px-4 py-1.5 text-center mt-2'>
                     <i className='fa fa-plus mr-2' style={{ fontSize: 12 }}></i> Add new button
                   </button>
                 </div>
 
-                <input value={quAnswerFooter} onChange={(e) => setQuAnswerFooter(e.target.value)} placeholder="click to edit footer"
-                  className='bg-[#336699] text-white w-full text-sm p-1 py-2 outline-none font-semibold placeholder-slate-400' />
+                <div className='flex mt-2 justify-end'>
+                  <button className='mx-1 bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-1 
+                  px-4 text-sm border border-blue-500 hover:border-transparent rounded' onClick={() => save('quick-answer')}>Save</button>
+                  <button className='mx-1 bg-transparent hover:bg-red-500 text-red-700 font-semibold hover:text-white py-1 
+                  px-4 text-sm border border-red-500 hover:border-transparent rounded mr-2' onClick={() => cancel('quick-answer')}>Cancel</button>
+                </div>
+              </>
+            }
+
+            {
+              label === 'Answer with Text' &&
+              <>
+                <RichTextEditor
+                  value={answerContent}
+                  placeholder='Edit here ...'
+                  onChange={(value) => { setAnswerContent(value) }}
+                  toolbarConfig={toolbarConfig}
+                  className="font-[400] custom-rich-editor"
+                />
+                <div className='flex mt-2 justify-end'>
+                  <button className='mx-1 bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-1 
+                  px-4 text-sm border border-blue-500 hover:border-transparent rounded' onClick={() => save('answer-text')}>Save</button>
+                  <button className='mx-1 bg-transparent hover:bg-red-500 text-red-700 font-semibold hover:text-white py-1 
+                  px-4 text-sm border border-red-500 hover:border-transparent rounded mr-2' onClick={() => cancel('answer-text')}>Cancel</button>
+                </div>
+              </>
+            }
+            {
+              label === 'Upload Media' &&
+              <div>
+                <p className='text-[#555] text-sm p-3'>Media File</p>
+                {
+                  media.data ?
+                    <div className='relative border rounded m-2'>
+                      <button className='border rounded-full h-5 w-5 z-10 absolute top-1 right-1 font-[500] flex justify-center items-center'
+                        onClick={() => { setMedia({ data: null, type: '' }) }}><i className='fa fa-close' style={{ fontSize: 12 }} ></i></button>
+                      {
+                        media.type === 'video' ?
+                          <video className='w-full h-auto' controls>
+                            <source src={URL.createObjectURL(media.data)} type="video/mp4" />
+                          </video>
+                          :
+                          <img src={URL.createObjectURL(media.data)} className='w-full h-auto' alt='B' />
+                      }
+                    </div>
+                    :
+                    <div className="flex items-center justify-center w-full p-2">
+                      <label htmlFor="dropzone-file1" className="w-full h-full border-0 bg-[#F0F2F4] py-10">
+                        <div className="flex flex-col items-center justify-center w-fit h-auto z-[5] relative mx-auto rounded-lg cursor-pointer bg-white hover:bg-[#fafafa]">
+                          <img src={'/imgs/empty-img.png'} className='border-0 rounded-lg w-10' />
+                        </div>
+                        <p className='w-full text-center text-xs text-[#888] mt-1'>File Upload</p>
+                        <input id="dropzone-file1" type="file" className="hidden" onChange={mediaUploadHandler} name='nftfile' />
+                      </label>
+                    </div>
+                }
 
                 <div className='flex mt-2 justify-end'>
                   <button className='mx-1 bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-1 
-                  px-4 text-sm border border-blue-500 hover:border-transparent rounded' onClick={saveQudata}>Save</button>
+                  px-4 text-sm border border-blue-500 hover:border-transparent rounded' onClick={() => save('media')}>Save</button>
                   <button className='mx-1 bg-transparent hover:bg-red-500 text-red-700 font-semibold hover:text-white py-1 
-                  px-4 text-sm border border-red-500 hover:border-transparent rounded mr-2' onClick={cancelQudata}>Cancel</button>
+                  px-4 text-sm border border-red-500 hover:border-transparent rounded mr-2' onClick={() => cancel('media')}>Cancel</button>
                 </div>
-              </>
+              </div>
+            }
+
+            {
+              label === 'Talk with advisor' &&
+              <div className='p-2'>
+                <p className='text-[#555] text-sm'>Advisor Name</p>
+                <p className='text-lg font-[500] mt-2'>Vladyslav Anisimov</p>
+              </div>
+            }
+
+            {
+              label === 'Web Service' &&
+              <div className='p-2'>
+                <p className='text-[#555] text-sm px-1'>Web Hook Settings</p>
+                <div className='body border text-sm p-1 mt-2'>
+                  <p className='mb-2 text-sm'>URL & Method</p>
+                  <strong className='text-xs'>Select the method and type the url</strong>
+                  <div className='relative'>
+                    <select id="answer_vals" className="w-16 absolute cursor-pointer bg-[#4338ca] border-0 text-white
+                  outline-none block p-1" onChange={(e) => { setApiMethod(e.target.value) }}>
+                      <option value="get" selected={apiMethod==='get'}>GET</option>
+                      <option value="post" selected={apiMethod==='post'}>POST</option>
+                    </select>
+                    <input className='pl-[66px] text-left border p-1 w-full outline-none focus:border-gray-400 mr-1'
+                      onChange={(e) => { setApiUrl(e.target.value) }} value={apiUrl}
+                    />
+                  </div>
+                  <hr className='my-2' />
+                  <p className='mb-2 text-sm'>Send Params</p>
+                  {
+                    apiParams.map((val, no) => (
+                      <div className='flex justify-between flex' key={no}>
+                        <div className='flex justify-between w-11/12'>
+                          <div className='w-1/2 mr-1'>
+                            <p className='text-xs'>Key</p>
+                            <input className='text-left border p-1 w-full outline-none focus:border-gray-400 mr-1' value={val.key}
+                              onChange={(e) => {
+                                apiParams[no].key = e.target.value;
+                                setApiParams([...apiParams]);
+                              }} />
+                          </div>
+                          <div className='w-1/2'>
+                            <p className='text-xs'>Value</p>
+                            <input className='text-left border p-1 w-full outline-none focus:border-gray-400 mr-1' value={val.value}
+                              onChange={(e) => {
+                                apiParams[no].value = e.target.value;
+                                setApiParams([...apiParams]);
+                              }} />
+                          </div>
+                        </div>
+                        <div className='py-5 px-1'>
+                          <i className='fa fa-trash mt-1 cursor-pointer hover:text-[#888]'
+                            onClick={() => {
+                              apiParams.splice(no, 1);
+                              setApiParams([...apiParams]);
+                            }}></i>
+                        </div>
+                      </div>
+                    ))
+                  }
+                  <button className='mx-1 bg-transparent hover:bg-[#4338ca] text-[#4338ca] font-semibold hover:text-white py-1 
+                  px-4 text-xs border border-[#4338ca] hover:border-transparent rounded' onClick={() => {
+                      apiParams.push({ key: '', value: '' })
+                      setApiParams([...apiParams]);
+                    }}>
+                    <i className='fa fa-plus mr-1'></i>Add New
+                  </button>
+
+                  <hr className='my-2' />
+                  <p className='mb-2 text-sm'>Send Headers</p>
+                  {
+                    apiHeaders.map((val, no) => (
+                      <div className='flex justify-between flex' key={no}>
+                        <div className='flex justify-between w-11/12'>
+                          <div className='w-1/2 mr-1'>
+                            <p className='text-xs'>Key</p>
+                            <input className='text-left border p-1 w-full outline-none focus:border-gray-400 mr-1' value={val.key}
+                              onChange={(e) => {
+                                apiHeaders[no].key = e.target.value;
+                                setApiHeaders([...apiHeaders]);
+                              }} />
+                          </div>
+                          <div className='w-1/2'>
+                            <p className='text-xs'>Value</p>
+                            <input className='text-left border p-1 w-full outline-none focus:border-gray-400 mr-1' value={val.value}
+                              onChange={(e) => {
+                                apiHeaders[no].value = e.target.value;
+                                setApiHeaders([...apiHeaders]);
+                              }} />
+                          </div>
+                        </div>
+                        <div className='py-5 px-1'>
+                          <i className='fa fa-trash mt-1 cursor-pointer hover:text-[#888]'
+                            onClick={() => {
+                              apiHeaders.splice(no, 1);
+                              setApiHeaders([...apiHeaders]);
+                            }}></i>
+                        </div>
+                      </div>
+                    ))
+                  }
+                  <button className='mx-1 bg-transparent hover:bg-[#4338ca] text-[#4338ca] font-semibold hover:text-white py-1 
+                  px-4 text-xs border border-[#4338ca] hover:border-transparent rounded' onClick={() => {
+                      apiHeaders.push({ key: '', value: '' })
+                      setApiHeaders([...apiHeaders]);
+                    }}>
+                    <i className='fa fa-plus mr-1'></i>Add New
+                  </button>
+
+                  <hr className='my-2' />
+                  <div className='flex justify-between'>
+                    <p className='mb-2 text-sm'>Save response as variable</p>
+                    <div className="form-control">
+                      <input type="checkbox" className="toggle toggle-primary" checked={isSaveResAsVal} onChange={() => setIsSaveResAsVal(!isSaveResAsVal)} />
+                    </div>
+                  </div>
+                  <select id="req" className="w-full rounded bg-[#4338ca] border-0 text-white mt-2 cursor-pointer
+                  outline-none block p-1" onChange={(e) => { console.log(e.target.value);setResApiVariable(e.target.value); }} >
+                    {
+                      variables.map((data, id) =>
+                        <option key={id} selected={resApiVariable === data.key} value={data.key}>
+                          {data.key}
+                        </option>
+                      )
+                    }
+                  </select>
+                </div>
+                <div className='flex mt-2 justify-end'>
+                  <button className='mx-1 bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-1 
+                  px-4 text-sm border border-blue-500 hover:border-transparent rounded' onClick={() => save('web')}>Save</button>
+                  <button className='mx-1 bg-transparent hover:bg-red-500 text-red-700 font-semibold hover:text-white py-1 
+                  px-4 text-sm border border-red-500 hover:border-transparent rounded mr-2' onClick={() => cancel('web')}>Cancel</button>
+                </div>
+              </div>
             }
           </div>
         </div>

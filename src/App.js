@@ -9,7 +9,7 @@ function App() {
   return (
     <>
       <BrowserRouter>
-        <ToastContainer position='top-left' />
+        <ToastContainer position='top-right' />
         <Routes>
           <Route element={<Layout />}>
             <Route index element={<Main />} />

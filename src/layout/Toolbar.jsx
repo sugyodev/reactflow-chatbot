@@ -16,7 +16,7 @@ function Toolbar() {
         </svg>
       </button>
 
-      <aside id="sidebar-multi-level-sidebar" className="fixed top-[76px] left-0 z-40 w-64 h-screen transition-transform 
+      <aside id="sidebar-multi-level-sidebar" className="fixed top-[80px] left-0 z-40 w-64 transition-transform 
       -translate-x-full sm:translate-x-0 border-r border-gray-200" aria-label="Sidebar">
         <div className="h-full px-3 py-4 overflow-y-auto">
           <ul className="space-y-2 font-medium">
