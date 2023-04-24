@@ -278,6 +278,14 @@ function SettingBar({ setShowSettingBar, selectedNodeData }) {
       case 'advisor':
         setShowSettingBar(false);
         break;
+      case 'web':
+        setShowSettingBar(false);
+        setApiUrl('');
+        setApiMethod('');
+        setApiParams([]);
+        setApiHeaders([]);
+        setResApiVariable(variables[0]?.key);
+        break;
       default:
         break;
     }
@@ -627,8 +635,8 @@ function SettingBar({ setShowSettingBar, selectedNodeData }) {
                   <div className='relative'>
                     <select id="answer_vals" className="w-16 absolute cursor-pointer bg-[#4338ca] border-0 text-white
                   outline-none block p-1" onChange={(e) => { setApiMethod(e.target.value) }}>
-                      <option value="get" selected={apiMethod==='get'}>GET</option>
-                      <option value="post" selected={apiMethod==='post'}>POST</option>
+                      <option value="get" selected={apiMethod === 'get'}>GET</option>
+                      <option value="post" selected={apiMethod === 'post'}>POST</option>
                     </select>
                     <input className='pl-[66px] text-left border p-1 w-full outline-none focus:border-gray-400 mr-1'
                       onChange={(e) => { setApiUrl(e.target.value) }} value={apiUrl}
@@ -724,7 +732,7 @@ function SettingBar({ setShowSettingBar, selectedNodeData }) {
                     </div>
                   </div>
                   <select id="req" className="w-full rounded bg-[#4338ca] border-0 text-white mt-2 cursor-pointer
-                  outline-none block p-1" onChange={(e) => { console.log(e.target.value);setResApiVariable(e.target.value); }} >
+                  outline-none block p-1" onChange={(e) => { console.log(e.target.value); setResApiVariable(e.target.value); }} >
                     {
                       variables.map((data, id) =>
                         <option key={id} selected={resApiVariable === data.key} value={data.key}>
