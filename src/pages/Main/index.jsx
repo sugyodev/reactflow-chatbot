@@ -14,6 +14,7 @@ import Navbar from '../../layout/Navbar';
 import Toolbar from '../../layout/Toolbar';
 import SettingBar from '../../layout/SettingBar';
 
+const defaultViewport = { x: 0, y: 0, zoom: 1.2 };
 const initialNodes = [
   {
     id: '1',
@@ -92,6 +93,7 @@ const Main = () => {
           break;
         case 'Answer with Text':
           nodedata['answer_content'] = '';
+          nodedata['answer_buttons'] = [];
           break;
         case 'Upload Media':
           nodedata['media_type'] = '';
@@ -125,7 +127,8 @@ const Main = () => {
   );
 
   const exportJson = () => {
-    const jsonString = JSON.stringify(nodes);
+    const obj = { nodes: nodes, links: edges };
+    const jsonString = JSON.stringify(obj);
     const blob = new Blob([jsonString], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -149,6 +152,7 @@ const Main = () => {
             onDrop={onDrop}
             onDragOver={onDragOver}
             nodeTypes={nodeTypes}
+            defaultViewport={defaultViewport}
           // fitView
           >
             <Controls />

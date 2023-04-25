@@ -41,6 +41,7 @@ function SettingBar({ setShowSettingBar, selectedNodeData }) {
 
   //Answer with text
   const [answerContent, setAnswerContent] = useState(RichTextEditor.createEmptyValue());
+  const [answerButtons, setAnswerButtons] = useState([]);
 
   //Upload Media
   const [media, setMedia] = useState({ data: null, type: '' });
@@ -74,7 +75,7 @@ function SettingBar({ setShowSettingBar, selectedNodeData }) {
     nodedata?.api_params && setApiParams([...nodedata?.api_params]);
     nodedata?.api_headers && setApiHeaders([...nodedata?.api_headers]);
     nodedata?.api_res_variable && setResApiVariable(nodedata?.api_res_variable);
-
+    nodedata?.answer_buttons && setAnswerButtons([...nodedata?.answer_buttons]);
   }, [id]);
 
   const variableChangeHandler = (e, type, id) => {
@@ -196,6 +197,7 @@ function SettingBar({ setShowSettingBar, selectedNodeData }) {
                 nodedata: {
                   ...node.data.nodedata,
                   answer_content: answerContent.toString('html'),
+                  answer_buttons: answerButtons
                 }
               }
             }
@@ -270,6 +272,7 @@ function SettingBar({ setShowSettingBar, selectedNodeData }) {
       case 'answer-text':
         setShowSettingBar(false);
         setAnswerContent(RichTextEditor.createEmptyValue());
+        setAnswerButtons([]);
         break;
       case 'media':
         setShowSettingBar(false);
@@ -570,6 +573,38 @@ function SettingBar({ setShowSettingBar, selectedNodeData }) {
                   toolbarConfig={toolbarConfig}
                   className="font-[400] custom-rich-editor"
                 />
+                <div className='px-2 pb-2'>
+                  {
+                    answerButtons.map((data, no) => (
+                      <div key={no} className='flex justify-between text-[#9d174d] bg-white border border-[#9d174d] focus:outline-none hover:bg-[#9d174d] 
+                      focus:ring-4 focus:ring-gray-200 rounded text-sm px-4 py-2 mr-2 mt-2 hover:text-white cursor-pointer'>
+                        <input value={data.name} className='outline-none bg-transparent placeholder-gray-400'
+                          placeholder='click to edit' onChange={(e) => {
+                            answerButtons[no].name = e.target.value;
+                            setAnswerButtons([...answerButtons]);
+                          }} />
+                        <i className='fa fa-trash mt-1 cursor-pointer hover:text-[#ccc]' onClick={() => {
+                          answerButtons.splice(no, 1);
+                          setAnswerButtons([...answerButtons]);
+                        }}></i>
+                      </div>
+                    ))
+                  }
+
+                  <button onClick={() => {
+                    if (answerButtons.length >= 3) {
+                      toast.warn('You can\'t add new button anymore.');
+                      return;
+                    }
+                    let newButton = { name: `Button`, data: {} };
+                    answerButtons.push(newButton);
+                    setAnswerButtons([...answerButtons]);
+                  }} className='w-full text-white bg-gradient-to-r from-purple-500 via-purple-600 
+                  to-purple-700 hover:bg-gradient-to-br focus:outline-none focus:ring-purple-300 font-medium rounded-full 
+                  text-sm px-4 py-1.5 text-center mt-2'>
+                    <i className='fa fa-plus mr-2' style={{ fontSize: 12 }}></i> Add new button
+                  </button>
+                </div>
                 <div className='flex mt-2 justify-end'>
                   <button className='mx-1 bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-1 
                   px-4 text-sm border border-blue-500 hover:border-transparent rounded' onClick={() => save('answer-text')}>Save</button>
@@ -756,5 +791,5 @@ function SettingBar({ setShowSettingBar, selectedNodeData }) {
     </>
   );
 }
-// 
+
 export default SettingBar;

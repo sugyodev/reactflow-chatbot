@@ -67,6 +67,7 @@ function CustomNode(props) {
         break;
       case 'Answer with Text':
         nodedata['answer_content'] = '';
+        nodedata['answer_buttons'] = [];
         break;
       case 'Upload Media':
         nodedata['media_type'] = '';
@@ -123,7 +124,6 @@ function CustomNode(props) {
 
   return (
     <>
-      <Handle type="target" position={Position.Top} />
       {showToolbar &&
         <div className='flex absolute -top-6 border border-gray-400 rounded-full p-1 px-2' style={{ fontSize: 10 }} ref={wrapperRef}>
           <i className='fa fa-trash cursor-pointer' onClick={deleteNodeById}></i>
@@ -143,32 +143,37 @@ function CustomNode(props) {
           {label}
         </p>
 
-        <div className='text-xs max-w-44 break-words max-h-36 h-full overflow-y-auto'>
+        <div className='text-xs max-w-44 break-words h-fit'>
           {
             label === 'Message' &&
             <div className='p-2'>
+              <Handle type="target" position={Position.Top} id='message' />
               {
                 nodedata.content
                   ? <div dangerouslySetInnerHTML={{ __html: nodedata.content }}></div>
                   : <p className='text-[#aaa]'><i>no messages</i><br /></p>
               }
+              <Handle type="source" position={Position.Bottom} id="message" />
             </div>
           }
 
           {
             label === 'Questions' &&
             <div className='p-2'>
+              <Handle type="target" position={Position.Top} id='question' />
               {
                 nodedata.qa_q
                   ? <div dangerouslySetInnerHTML={{ __html: nodedata.qa_q }}></div>
                   : <p className='text-[#aaa]'><i>no questions</i><br /></p>
               }
+              <Handle type="source" position={Position.Bottom} id="question" />
             </div>
           }
 
           {
             label === 'Options' &&
             <div className=''>
+              <Handle type="target" position={Position.Top} id='options' />
               <h1 className='bg-[#336699] p-1 text-center text-white'>{nodedata?.option_header ? nodedata?.option_header : 'Default Header'}</h1>
               <div className=''>
                 {
@@ -182,28 +187,51 @@ function CustomNode(props) {
                 {
                   nodedata.data.length > 0
                     ?
-                    nodedata.data.map((section, s_no) => (
-                      <div key={s_no}>
-                        <div className='text-[#0894b5] text-xs font-[500] my-[6px] px-1'>{section.name}</div>
-                        {section.data.map((option, o_no) => (
-                          <div className='w-full flex justify-between my-1 cursor-pointer hover:bg-[#eee] p-1 px-2' onClick={() => selectOption(s_no, o_no)} key={o_no} >
-                            <p>{option}</p>
-                            <input type="radio" className='w-2' checked={section.selectedOption === o_no} />
-                          </div>
-                        ))}
-                      </div>
-                    ))
+                    nodedata.data.map((section, s_no) => {
+                      let t_no = 0;
+                      if (s_no > 0) {
+                        for (let i = 0; i < s_no; i++) {
+                          t_no += nodedata.data[i].data.length;
+                        }
+                      }
+                      return (
+                        <div key={s_no}>
+                          <div className='text-[#0894b5] text-xs font-[500] my-[6px] px-1'>{section.name}</div>
+                          {section.data.map((option, o_no) => (
+                            <div className='w-full flex justify-between cursor-pointer hover:bg-[#eee] p-1 px-2' onClick={() => selectOption(s_no, o_no)} key={o_no} >
+                              <p>{option}</p>
+                              <input type="radio" className='w-2' checked={section.selectedOption === o_no} />
+                              <Handle
+                                type="source"
+                                position={Position.Right}
+                                id={`option${s_no}-${o_no}`}
+                                style={{ top: (t_no + o_no + 1) * 24 + 110 + (s_no * 28), background: '#555' }}
+                              />
+                              <Handle
+                                type="target"
+                                position={Position.Left}
+                                id={`option${s_no}-${o_no}`}
+                                style={{ top: (t_no + o_no + 1) * 24 + 110 + (s_no * 28), background: '#555' }}
+                              />
+                            </div>
+                          ))}
+
+                        </div>
+                      )
+                    })
                     :
                     <></>
                 }
               </div>
               <h1 className='bg-[#336699] p-1 text-center text-white'>{nodedata?.option_footer ? nodedata?.option_footer : 'Default Footer'}</h1>
+              <Handle type="source" position={Position.Bottom} id="options" />
             </div>
           }
 
           {
             label === 'Quick Answers' &&
             <div className=''>
+              <Handle type="target" position={Position.Top} id='quick-answer' />
               <h1 className='bg-[#336699] p-1 text-center text-white'>{nodedata?.qu_header ? nodedata?.qu_header : 'Default Header'}</h1>
               <div className=''>
                 {
@@ -225,23 +253,52 @@ function CustomNode(props) {
                 }
               </div>
               <h1 className='bg-[#336699] p-1 text-center text-white'>{nodedata?.qu_footer ? nodedata?.qu_footer : 'Default Footer'}</h1>
+              <Handle type="source" position={Position.Bottom} id="quick-answer" />
             </div>
           }
 
           {
             label === 'Answer with Text' &&
             <div className='p-2'>
+              <Handle type="target" position={Position.Top} id='answer-with-text' />
               {
                 nodedata.answer_content
                   ? <div dangerouslySetInnerHTML={{ __html: nodedata.answer_content }}></div>
                   : <p className='text-[#aaa]'><i>no answer</i><br /></p>
               }
+              <div className=''>
+                {
+                  nodedata.answer_buttons.length > 0
+                    ?
+                    nodedata.answer_buttons.map((data, no) => (
+                      <div key={no} className='m-2 text-gray-900 bg-white border border-[#9d174d] focus:outline-none hover:bg-[#9d174d] rounded my-1 hover:text-white text-[#9d174d] text-xs px-4 py-[5px]'>
+                        <span>{data.name}</span>
+                        <Handle
+                          type="source"
+                          position={Position.Right}
+                          id={`answer-text-${no}`}
+                          style={{ top: (no + 1) * 32 + 48, background: '#555' }}
+                        />
+                        <Handle
+                          type="target"
+                          position={Position.Left}
+                          id={`answer-text-${no}`}
+                          style={{ top: (no + 1) * 32 + 48, background: '#555' }}
+                        />
+                      </div>
+                    ))
+                    :
+                    <></>
+                }
+              </div>
+              <Handle type="source" position={Position.Bottom} id="answer-with-text" />
             </div>
           }
 
           {
             label === 'Upload Media' &&
             <div className=''>
+              <Handle type="target" position={Position.Top} id='media' />
               {
                 nodedata.media_content
                   ?
@@ -263,29 +320,33 @@ function CustomNode(props) {
                     <p className='text-center text-[#555]'><i>Empty</i></p>
                   </div>
               }
+              <Handle type="source" position={Position.Bottom} id="media" />
             </div>
           }
 
           {
             label === 'Talk with advisor' &&
             <div className='p-2'>
+              <Handle type="target" position={Position.Top} id='talk-to-advisor' />
               {
                 <p className='text-[#555]'>Talk with <strong>Vladyslav</strong> (advisor)</p>
               }
+              <Handle type="source" position={Position.Bottom} id="talk-to-advisor" />
             </div>
           }
 
           {
             label === 'Web Service' &&
             <div className='p-2'>
+              <Handle type="target" position={Position.Top} id='web-service' />
               <p className='text-[#555]'>Service API</p>
               <p className='mt-1 text-sm'>{nodedata.api_url}</p>
+              <Handle type="source" position={Position.Bottom} id="web-service" />
             </div>
           }
 
         </div>
       </div>
-      <Handle type="source" position={Position.Bottom} id="a" />
     </>
   );
 }
