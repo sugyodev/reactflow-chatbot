@@ -19,14 +19,15 @@ function SettingBar({ setShowSettingBar, selectedNodeData }) {
   const [messageContent, setMessageContent] = useState(RichTextEditor.createEmptyValue());
 
   //Questions and answers
-  const [qaQuestion, setQaQuestion] = useState(RichTextEditor.createEmptyValue());
-  const [qaAnswer, setQaAnswer] = useState(RichTextEditor.createEmptyValue());
   const [variables, setVariables] = useState([
     { key: 'Company', value: 'ChatBot' },
     { key: 'Name', value: 'Vlady' },
     { key: 'Url', value: 'https://react-flow.com' },
     { key: 'Phone', value: '123145432452364' },
   ]);
+  const [qaQuestion, setQaQuestion] = useState(RichTextEditor.createEmptyValue());
+  const [qaAnswer, setQaAnswer] = useState(variables[0]?.value);
+
   //Options List
   const [optionContent, setOptionContent] = useState(RichTextEditor.createEmptyValue());
   const [optionsHeader, setOptionsHeader] = useState('');
@@ -44,7 +45,7 @@ function SettingBar({ setShowSettingBar, selectedNodeData }) {
   const [answerButtons, setAnswerButtons] = useState([]);
 
   //Upload Media
-  const [media, setMedia] = useState({ data: null, type: '' });
+  const [media, setMedia] = useState({ data: null, type: '', fileName: '' });
 
   //Web service
   const [isSaveResAsVal, setIsSaveResAsVal] = useState(true);
@@ -68,7 +69,7 @@ function SettingBar({ setShowSettingBar, selectedNodeData }) {
     nodedata?.option_footer && setOptionsFooter(nodedata?.option_footer);
     nodedata?.qu_header && setQuAnswerHeader(nodedata?.qu_header);
     nodedata?.qu_footer && setQuAnswerFooter(nodedata?.qu_footer);
-    nodedata?.media_content && setMedia({ ...media, data: nodedata?.media_content, type: nodedata?.media_type })
+    nodedata?.media_content && setMedia({ ...media, data: nodedata?.media_content, type: nodedata?.media_type, fileName: nodedata?.media_name })
 
     nodedata?.api_url && setApiUrl(nodedata?.api_url);
     nodedata?.api_method && setApiMethod(nodedata?.api_method);
@@ -105,9 +106,11 @@ function SettingBar({ setShowSettingBar, selectedNodeData }) {
   const mediaUploadHandler = (e) => {
     let file = e.target.files[0];
     if (file.type.includes('video') || file.type.includes("audio")) {
-      setMedia({ ...media, type: file.type.includes('video') ? "video" : "audio", data: file })
+      setMedia({ ...media, type: file.type.includes('video') ? "video" : "audio", data: file, fileName: file.name })
+    } else if (file.type.includes('image')) {
+      setMedia({ ...media, type: "image", data: file, fileName: file.name })
     } else {
-      setMedia({ ...media, type: "image", data: file })
+      setMedia({ ...media, type: "document", data: file, fileName: file.name })
     }
   };
 
@@ -215,6 +218,7 @@ function SettingBar({ setShowSettingBar, selectedNodeData }) {
                   ...node.data.nodedata,
                   media_content: media.data,
                   media_type: media.type,
+                  media_name: media.fileName,
                 }
               }
             }
@@ -258,7 +262,7 @@ function SettingBar({ setShowSettingBar, selectedNodeData }) {
         break;
       case 'question-answer':
         setQaQuestion(RichTextEditor.createEmptyValue());
-        setQaAnswer(RichTextEditor.createEmptyValue());
+        setQaAnswer(variables[0]?.value);
         setShowSettingBar(false);
         break;
       case 'options':
@@ -276,7 +280,7 @@ function SettingBar({ setShowSettingBar, selectedNodeData }) {
         break;
       case 'media':
         setShowSettingBar(false);
-        setMedia({ data: null, type: '' })
+        setMedia({ data: null, type: '', fileName: '' })
         break;
       case 'advisor':
         setShowSettingBar(false);
@@ -592,10 +596,10 @@ function SettingBar({ setShowSettingBar, selectedNodeData }) {
                   }
 
                   <button onClick={() => {
-                    if (answerButtons.length >= 3) {
-                      toast.warn('You can\'t add new button anymore.');
-                      return;
-                    }
+                    // if (answerButtons.length >= 3) {
+                    //   toast.warn('You can\'t add new button anymore.');
+                    //   return;
+                    // }
                     let newButton = { name: `Button`, data: {} };
                     answerButtons.push(newButton);
                     setAnswerButtons([...answerButtons]);
@@ -621,14 +625,16 @@ function SettingBar({ setShowSettingBar, selectedNodeData }) {
                   media.data ?
                     <div className='relative border rounded m-2'>
                       <button className='border rounded-full h-5 w-5 z-10 absolute top-1 right-1 font-[500] flex justify-center items-center'
-                        onClick={() => { setMedia({ data: null, type: '' }) }}><i className='fa fa-close' style={{ fontSize: 12 }} ></i></button>
+                        onClick={() => { setMedia({ data: null, type: '', fileName: '' }) }}><i className='fa fa-close' style={{ fontSize: 12 }} ></i></button>
                       {
                         media.type === 'video' ?
                           <video className='w-full h-auto' controls>
                             <source src={URL.createObjectURL(media.data)} type="video/mp4" />
                           </video>
                           :
-                          <img src={URL.createObjectURL(media.data)} className='w-full h-auto' alt='B' />
+                          media.type === 'image'
+                            ? <img src={URL.createObjectURL(media.data)} className='w-full h-auto' alt='B' />
+                            : <div className='p-2 py-4 text-sm'>{media.fileName}</div>
                       }
                     </div>
                     :

@@ -98,6 +98,7 @@ const Main = () => {
         case 'Upload Media':
           nodedata['media_type'] = '';
           nodedata['media_content'] = null;
+          nodedata['media_name'] = '';
           break;
         case 'Talk with advisor':
           nodedata['advisor_name'] = 'Vladyslav Anisimov';

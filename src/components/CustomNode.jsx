@@ -71,6 +71,7 @@ function CustomNode(props) {
         break;
       case 'Upload Media':
         nodedata['media_type'] = '';
+        nodedata['media_name'] = '';
         nodedata['media_content'] = null;
         break;
       case 'Talk with advisor':
@@ -177,14 +178,6 @@ function CustomNode(props) {
               <h1 className='bg-[#336699] p-1 text-center text-white'>{nodedata?.option_header ? nodedata?.option_header : 'Default Header'}</h1>
               <div className=''>
                 {
-                  nodedata.option_content
-                    ? <div dangerouslySetInnerHTML={{ __html: nodedata.option_content }} className="border-b p-2"></div>
-                    : <p className='text-[#aaa] p-2'><i>no content</i><br /></p>
-                }
-              </div>
-
-              <div className=''>
-                {
                   nodedata.data.length > 0
                     ?
                     nodedata.data.map((section, s_no) => {
@@ -205,13 +198,13 @@ function CustomNode(props) {
                                 type="source"
                                 position={Position.Right}
                                 id={`option${s_no}-${o_no}`}
-                                style={{ top: (t_no + o_no + 1) * 24 + 110 + (s_no * 28), background: '#555' }}
+                                style={{ top: (t_no + o_no + 1) * 24 + 78 + (s_no * 28), background: '#555' }}
                               />
                               <Handle
                                 type="target"
                                 position={Position.Left}
                                 id={`option${s_no}-${o_no}`}
-                                style={{ top: (t_no + o_no + 1) * 24 + 110 + (s_no * 28), background: '#555' }}
+                                style={{ top: (t_no + o_no + 1) * 24 + 78 + (s_no * 28), background: '#555' }}
                               />
                             </div>
                           ))}
@@ -221,6 +214,13 @@ function CustomNode(props) {
                     })
                     :
                     <></>
+                }
+              </div>
+              <div className=''>
+                {
+                  nodedata.option_content
+                    ? <div dangerouslySetInnerHTML={{ __html: nodedata.option_content }} className="border-t p-2 border-gray-300"></div>
+                    : <p className='text-[#aaa] p-2 border-t border-gray-300'><i>no content</i><br /></p>
                 }
               </div>
               <h1 className='bg-[#336699] p-1 text-center text-white'>{nodedata?.option_footer ? nodedata?.option_footer : 'Default Footer'}</h1>
@@ -234,22 +234,34 @@ function CustomNode(props) {
               <Handle type="target" position={Position.Top} id='quick-answer' />
               <h1 className='bg-[#336699] p-1 text-center text-white'>{nodedata?.qu_header ? nodedata?.qu_header : 'Default Header'}</h1>
               <div className=''>
-                {
-                  nodedata.qu_content
-                    ? <div dangerouslySetInnerHTML={{ __html: nodedata.qu_content }} className="border-b p-2"></div>
-                    : <p className='text-[#aaa] p-2'><i>no content</i></p>
-                }
-              </div>
-              <div className=''>
                 {nodedata.qu_data.length > 0
                   ?
                   nodedata.qu_data.map((data, no) => (
-                    <div key={no} className='m-2 text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 rounded my-1 focus:ring-4 focus:ring-gray-200 text-sm px-4 py-2 border-b border-gray-500'>
+                    <div key={no} className='m-2 text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 rounded my-1 focus:ring-4 focus:ring-gray-200 text-xs px-4 py-1 border-b border-gray-500'>
                       <span>{data.name}</span>
+                      <Handle
+                        type="source"
+                        position={Position.Right}
+                        id={`quick-answer-${no}`}
+                        style={{ top: (no + 1) * 31 + 46, background: '#555' }}
+                      />
+                      <Handle
+                        type="target"
+                        position={Position.Left}
+                        id={`quick-answer-${no}`}
+                        style={{ top: (no + 1) * 31 + 46, background: '#555' }}
+                      />
                     </div>
                   ))
                   :
                   <></>
+                }
+              </div>
+              <div className=''>
+                {
+                  nodedata.qu_content
+                    ? <div dangerouslySetInnerHTML={{ __html: nodedata.qu_content }} className="border-gray-400 border-t p-2"></div>
+                    : <p className='text-[#aaa] border-gray-400 border-t p-2'><i>no content</i></p>
                 }
               </div>
               <h1 className='bg-[#336699] p-1 text-center text-white'>{nodedata?.qu_footer ? nodedata?.qu_footer : 'Default Footer'}</h1>
@@ -259,13 +271,8 @@ function CustomNode(props) {
 
           {
             label === 'Answer with Text' &&
-            <div className='p-2'>
+            <div className=''>
               <Handle type="target" position={Position.Top} id='answer-with-text' />
-              {
-                nodedata.answer_content
-                  ? <div dangerouslySetInnerHTML={{ __html: nodedata.answer_content }}></div>
-                  : <p className='text-[#aaa]'><i>no answer</i><br /></p>
-              }
               <div className=''>
                 {
                   nodedata.answer_buttons.length > 0
@@ -277,13 +284,13 @@ function CustomNode(props) {
                           type="source"
                           position={Position.Right}
                           id={`answer-text-${no}`}
-                          style={{ top: (no + 1) * 32 + 48, background: '#555' }}
+                          style={{ top: (no + 1) * 32 + 24, background: '#555' }}
                         />
                         <Handle
                           type="target"
                           position={Position.Left}
                           id={`answer-text-${no}`}
-                          style={{ top: (no + 1) * 32 + 48, background: '#555' }}
+                          style={{ top: (no + 1) * 32 + 24, background: '#555' }}
                         />
                       </div>
                     ))
@@ -291,6 +298,11 @@ function CustomNode(props) {
                     <></>
                 }
               </div>
+              {
+                nodedata.answer_content
+                  ? <div dangerouslySetInnerHTML={{ __html: nodedata.answer_content }} className='border-t border-gray-300 p-2'></div>
+                  : <p className='text-[#aaa] border-t p-2 border-gray-300'><i>no answer</i><br /></p>
+              }
               <Handle type="source" position={Position.Bottom} id="answer-with-text" />
             </div>
           }
@@ -309,7 +321,9 @@ function CustomNode(props) {
                           <source src={URL.createObjectURL(nodedata.media_content)} type="video/mp4" />
                         </video>
                         :
-                        <img src={URL.createObjectURL(nodedata.media_content)} className='w-full h-auto rounded' alt='B' />
+                        nodedata.media_type === 'image'
+                          ? <img src={URL.createObjectURL(nodedata.media_content)} className='w-full h-auto rounded' alt='B' />
+                          : <div className='p-2 py-4 text-xs'>{nodedata.media_name}</div>
                     }
                   </div>
                   :
