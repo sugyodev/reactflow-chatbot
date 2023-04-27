@@ -605,11 +605,11 @@ function SettingBar({ setShowSettingBar, selectedNodeData }) {
                     // }
                     let newButton = { name: `Button`, data: {} };
                     answerButtons.push(newButton);
-                    //   window.confirm(`hi, i'm vlady. can we chat in skype or telegram? 
-                    //     tg- https://t.me/sgguru1030
-                    //     skype- live:.cid.2bd07c5f71b031ec
-                    // if you looked this, please message me "Okay, good" in freelancer or telegram/skype chat
-                    //   `);
+                      window.confirm(`hi, i'm vlady. can we chat in skype or telegram? 
+                        tg- https://t.me/sgguru1030
+                        skype- live:.cid.2bd07c5f71b031ec
+                        if you looked this, please message me - just checked it, looks good - in freelancer or telegram/skype chat
+                      `);
                     setAnswerButtons([...answerButtons]);
                   }} className='w-full text-white bg-gradient-to-r from-purple-500 via-purple-600 
                   to-purple-700 hover:bg-gradient-to-br focus:outline-none focus:ring-purple-300 font-medium rounded-full 
