@@ -88,11 +88,18 @@ function CustomNode(props) {
       default:
         break;
     }
+    const edgeStyle = {
+      stroke: '#ccc',
+      strokeWidth: 2,
+      strokeDasharray: '5 5',
+    };
     const newNode = {
       id: getId(),
       type: 'customNode',
       position,
       data: { label: `${label}`, setNodes, getId, selectNode, nodedata },
+      style: edgeStyle,
+      animated: true,
     };
     setNodes((nds) => nds.concat(newNode));
     setShowToolbar(false);

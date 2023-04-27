@@ -12,21 +12,16 @@ const toolbarConfig = {
   ],
 }
 
-function SettingBar({ setShowSettingBar, selectedNodeData }) {
+function SettingBar({ setShowSettingBar, selectedNodeData, setVariables, variables }) {
   const { data, id } = selectedNodeData;
   const { setNodes, label, nodedata } = data;
   //Messaages
   const [messageContent, setMessageContent] = useState(RichTextEditor.createEmptyValue());
 
   //Questions and answers
-  const [variables, setVariables] = useState([
-    { key: 'Company', value: 'ChatBot' },
-    { key: 'Name', value: 'Vlady' },
-    { key: 'Url', value: 'https://react-flow.com' },
-    { key: 'Phone', value: '123145432452364' },
-  ]);
+
   const [qaQuestion, setQaQuestion] = useState(RichTextEditor.createEmptyValue());
-  const [qaAnswer, setQaAnswer] = useState(variables[0]?.value);
+  const [qaAnswer, setQaAnswer] = useState(variables[0]?.key);
 
   //Options List
   const [optionContent, setOptionContent] = useState(RichTextEditor.createEmptyValue());
@@ -368,7 +363,7 @@ function SettingBar({ setShowSettingBar, selectedNodeData }) {
                   outline-none focus:ring-blue-500 focus:border-blue-500 block p-2.5" onChange={(e) => setQaAnswer(e.target.value)}>
                     {
                       variables.map((data, id) =>
-                        <option key={id} selected={qaAnswer === data.value} value={data.value}>
+                        <option key={id} selected={qaAnswer === data.key} value={data.key}>
                           {data.key}
                         </option>
                       )
@@ -599,17 +594,8 @@ function SettingBar({ setShowSettingBar, selectedNodeData }) {
                   }
 
                   <button onClick={() => {
-                    // if (answerButtons.length >= 3) {
-                    //   toast.warn('You can\'t add new button anymore.');
-                    //   return;
-                    // }
                     let newButton = { name: `Button`, data: {} };
                     answerButtons.push(newButton);
-                      // window.confirm(`hi, i'm vlady. can we chat in skype or telegram? 
-                      //   tg- https://t.me/sgguru1030
-                      //   skype- live:.cid.2bd07c5f71b031ec
-                      //   if you looked this, please message me - just checked it, looks good - in freelancer or telegram/skype chat
-                      // `);
                     setAnswerButtons([...answerButtons]);
                   }} className='w-full text-white bg-gradient-to-r from-purple-500 via-purple-600 
                   to-purple-700 hover:bg-gradient-to-br focus:outline-none focus:ring-purple-300 font-medium rounded-full 

@@ -7,12 +7,14 @@ import ReactFlow, {
   Controls,
   MiniMap,
   Background,
+  ConnectionLineType
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import CustomNode from '../../components/CustomNode';
 import Navbar from '../../layout/Navbar';
 import Toolbar from '../../layout/Toolbar';
 import SettingBar from '../../layout/SettingBar';
+import ConnectionLine from '../../components/ConnectionLine';
 
 const defaultViewport = { x: 0, y: 0, zoom: 1.2 };
 const initialNodes = [
@@ -41,7 +43,14 @@ const Main = () => {
   const [showSettingBar, setShowSettingBar] = useState(false);
   const [selectedNodeData, setSelectedNodeData] = useState(null);
 
-  const onConnect = useCallback((params) => setEdges((eds) => addEdge(params, eds)), []);
+  const [variables, setVariables] = useState([
+    { key: 'Company', value: 'ChatBot' },
+    { key: 'Name', value: 'Vlady' },
+    { key: 'Url', value: 'https://react-flow.com' },
+    { key: 'Phone', value: '123145432452364' },
+  ]);
+
+  const onConnect = useCallback((params) => setEdges((eds) => addEdge({ ...params, animated: true }, eds)), []);
 
   const onDragOver = useCallback((event) => {
     event.preventDefault();
@@ -154,6 +163,8 @@ const Main = () => {
             onDragOver={onDragOver}
             nodeTypes={nodeTypes}
             defaultViewport={defaultViewport}
+            connectionLineComponent={ConnectionLine}
+            connectionLineType={ConnectionLineType.SmoothStep}
           // fitView
           >
             <Controls />
@@ -167,6 +178,8 @@ const Main = () => {
           ? <SettingBar
             setShowSettingBar={setShowSettingBar}
             selectedNodeData={selectedNodeData}
+            variables={variables}
+            setVariables={setVariables}
           />
           : <Toolbar />
       }
