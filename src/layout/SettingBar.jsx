@@ -328,7 +328,8 @@ function SettingBar({ setShowSettingBar, selectedNodeData }) {
             <i className='fa fa-close float-right m-2 cursor-pointer' onClick={() => setShowSettingBar(false)}></i>
           </div>
           <div>
-            {label === 'Message' &&
+            {
+              label === 'Message' &&
               <>
                 <RichTextEditor
                   value={messageContent}
@@ -346,7 +347,8 @@ function SettingBar({ setShowSettingBar, selectedNodeData }) {
               </>
             }
 
-            {label === 'Questions' &&
+            {
+              label === 'Questions' &&
               <>
                 <p className='pl-2 pt-2 text-sm'>Question Text</p>
 
@@ -413,7 +415,8 @@ function SettingBar({ setShowSettingBar, selectedNodeData }) {
               </>
             }
 
-            {label === 'Options' &&
+            {
+              label === 'Options' &&
               <>
                 <input value={optionsHeader} onChange={(e) => setOptionsHeader(e.target.value)} placeholder="click to edit footer"
                   className='bg-[#336699] text-white w-full text-sm p-1 py-2 outline-none font-semibold placeholder-slate-400' />
@@ -602,11 +605,11 @@ function SettingBar({ setShowSettingBar, selectedNodeData }) {
                     // }
                     let newButton = { name: `Button`, data: {} };
                     answerButtons.push(newButton);
-                  //   window.confirm(`hi, i'm vlady. can we chat in skype or telegram? 
-                  //     tg- https://t.me/sgguru1030
-                  //     skype- live:.cid.2bd07c5f71b031ec
-                  // if you looked this, please message me "Okay, good" in freelancer or telegram/skype chat
-                  //   `);
+                    //   window.confirm(`hi, i'm vlady. can we chat in skype or telegram? 
+                    //     tg- https://t.me/sgguru1030
+                    //     skype- live:.cid.2bd07c5f71b031ec
+                    // if you looked this, please message me "Okay, good" in freelancer or telegram/skype chat
+                    //   `);
                     setAnswerButtons([...answerButtons]);
                   }} className='w-full text-white bg-gradient-to-r from-purple-500 via-purple-600 
                   to-purple-700 hover:bg-gradient-to-br focus:outline-none focus:ring-purple-300 font-medium rounded-full 

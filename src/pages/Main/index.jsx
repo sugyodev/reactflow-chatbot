@@ -162,12 +162,13 @@ const Main = () => {
           </ReactFlow>
         </div>
       </ReactFlowProvider>
-      {showSettingBar
-        ? <SettingBar
-          setShowSettingBar={setShowSettingBar}
-          selectedNodeData={selectedNodeData}
-        />
-        : <Toolbar />
+      {
+        showSettingBar
+          ? <SettingBar
+            setShowSettingBar={setShowSettingBar}
+            selectedNodeData={selectedNodeData}
+          />
+          : <Toolbar />
       }
     </div>
   );
