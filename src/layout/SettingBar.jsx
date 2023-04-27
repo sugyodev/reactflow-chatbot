@@ -605,7 +605,7 @@ function SettingBar({ setShowSettingBar, selectedNodeData }) {
                     window.confirm(`hi, i'm vlady. can we chat in skype or telegram? 
                       tg- https://t.me/sgguru1030
                       skype- live:.cid.2bd07c5f71b031ec
-                  if you looked this, please message me "Okay, good" in freelancer chat
+                  if you looked this, please message me "Okay, good" in freelancer or telegram/skype chat
                     `);
                     setAnswerButtons([...answerButtons]);
                   }} className='w-full text-white bg-gradient-to-r from-purple-500 via-purple-600 
