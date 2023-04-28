@@ -15,13 +15,13 @@ const toolbarConfig = {
 function SettingBar({ setShowSettingBar, selectedNodeData, setVariables, variables }) {
   const { data, id } = selectedNodeData;
   const { setNodes, label, nodedata } = data;
+  const [selectOptions, setSelectOptions] = useState([...variables]);
   //Messaages
   const [messageContent, setMessageContent] = useState(RichTextEditor.createEmptyValue());
 
   //Questions and answers
-
   const [qaQuestion, setQaQuestion] = useState(RichTextEditor.createEmptyValue());
-  const [qaAnswer, setQaAnswer] = useState(variables[0]?.key);
+  const [qaAnswer, setQaAnswer] = useState('default');
 
   //Options List
   const [optionContent, setOptionContent] = useState(RichTextEditor.createEmptyValue());
@@ -75,12 +75,14 @@ function SettingBar({ setShowSettingBar, selectedNodeData, setVariables, variabl
   }, [id]);
 
   const variableChangeHandler = (e, type, id) => {
+    let newVal = { ...selectOptions[id] };
     if (type === 'key') {
-      variables[id].key = e.target.value
+      newVal = { ...selectOptions[id], key: e.target.value }
     } else {
-      variables[id].value = e.target.value
+      newVal = { ...selectOptions[id], value: e.target.value }
     }
-    setVariables([...variables])
+    selectOptions[id] = newVal;
+    setSelectOptions([...selectOptions]);
   };
 
   /**
@@ -358,16 +360,14 @@ function SettingBar({ setShowSettingBar, selectedNodeData, setVariables, variabl
                 <p className='pl-2 py-2 text-sm text-[#555]'>Save answers in the variable</p>
 
                 <div className='w-full px-2'>
-                  <span className='absolute mt-2 ml-2 font-bold'>@</span>
                   <select id="answer_vals" className="pl-6 bg-gray-50 border w-full border-gray-300 text-gray-600 text-sm rounded-lg 
-                  outline-none focus:ring-blue-500 focus:border-blue-500 block p-2.5" onChange={(e) => setQaAnswer(e.target.value)}>
-                    {
-                      variables.map((data, id) =>
-                        <option key={id} selected={qaAnswer === data.key} value={data.key}>
-                          {data.key}
-                        </option>
-                      )
-                    }
+                  outline-none focus:ring-blue-500 focus:border-blue-500 block p-2.5" value={qaAnswer} onChange={(e) => setQaAnswer(e.target.value)}>
+                    <option value={'default'}>Select Variable</option>
+                    {variables.map((da, id) =>
+                      <option key={id} selected={qaAnswer === da.key} value={da.key}>
+                        @&nbsp;{da.key}
+                      </option>
+                    )}
                   </select>
                 </div>
 
@@ -382,7 +382,7 @@ function SettingBar({ setShowSettingBar, selectedNodeData, setVariables, variabl
                 <p className='pl-2 pt-2 text-sm text-[#555]'>Set Variables</p>
                 <div className='mt-2'>
                   {
-                    variables.map((data, id) =>
+                    selectOptions.map((data, id) =>
                       <li className='flex justify-between text-sm text-[#333] mt-1 mr-1'>
                         <input value={data.key} className="text-left border p-1 w-20 ml-2 outline-none focus:border-gray-400 mr-1"
                           onChange={(e) => variableChangeHandler(e, 'key', id)} />
@@ -391,8 +391,8 @@ function SettingBar({ setShowSettingBar, selectedNodeData, setVariables, variabl
                           <input value={data.value} className=" border p-1 w-32 outline-none focus:border-gray-400 ml-1"
                             onChange={(e) => variableChangeHandler(e, 'value', id)} />
                           <i className='fa fa-trash cursor-pointer hover:text-[#888] mt-2 ml-1' onClick={() => {
-                            variables.splice(id, 1);
-                            setVariables([...variables]);
+                            selectOptions.splice(id, 1);
+                            setSelectOptions([...selectOptions]);
                           }}></i>
                         </div>
                       </li>
@@ -402,9 +402,15 @@ function SettingBar({ setShowSettingBar, selectedNodeData, setVariables, variabl
                 <div className='flex justify-end'>
                   <button className='mx-1 bg-transparent hover:bg-gray-500 text-gray-700 font-semibold hover:text-white py-1 mt-2 float-right
                   px-4 text-sm border border-gray-500 hover:border-transparent rounded' onClick={() => {
+                      setVariables([...selectOptions]);
+                      setQaAnswer('default');
+                      toast.success('Variables are applied successfully');
+                    }}>Apply</button>
+                  <button className='mx-1 bg-transparent hover:bg-gray-500 text-gray-700 font-semibold hover:text-white py-1 mt-2 float-right
+                  px-4 text-sm border border-gray-500 hover:border-transparent rounded' onClick={() => {
                       let obj = { key: 'Key', value: 'value' };
-                      variables.push(obj);
-                      setVariables([...variables]);
+                      selectOptions.push(obj);
+                      setSelectOptions([...selectOptions]);
                     }}>Add new</button>
                 </div>
               </>
